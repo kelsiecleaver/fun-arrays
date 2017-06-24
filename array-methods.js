@@ -134,17 +134,37 @@ var stateSums = dataset.bankBalances.reduce( (statesTotal, currentState) => {
     round this number to the nearest 10th of a cent before moving on.
   )
  */
-var sumOfHighInterests = null;
+var sumOfHighInterests = Object.keys(stateSums).filter( (state) => {
+  return ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'].indexOf(state) === -1;
+})
+.map( (state) => {
+    return{
+      state: state,
+      combinedAmount: stateSums[state]
+    };
+  })
+.map( (account) => {
+  return {
+    interest: parseFloat(account.combinedAmount * 0.189)
+  };
+})
+.filter( (account) => {
+  return account.interest > 50000;
+})
+.reduce( (prev, curr) => {
+  sum = prev + curr.interest;
+  return Math.round(sum * 100) /100;
+
+}, 0);
 
 /*
   set `lowerSumStates` to be an array of two letter state
   abbreviations of each state where the sum of amounts
   in the state is less than 1,000,000
  */
-var lowerSumStates =  null;
-// Object.keys(stateSums).filter( (state) => {
-//   return stateSums[state] < 1000000;
-// });
+var lowerSumStates = Object.keys(stateSums).filter( (state) => {
+  return stateSums[state] < 1000000;
+});
 
 /*
   aggregate the sum of each state into one hash table
