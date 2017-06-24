@@ -39,7 +39,6 @@ var datasetWithRoundedDollar = dataset.bankBalances.map( (total) =>{
     return {'rounded' : Math.round(total.amount)};
 
 });
-
 /*
   DO NOT MUTATE DATA.
 
@@ -85,8 +84,14 @@ var sumOfBankBalances = dataset.bankBalances.reduce( (total, number) =>{
   take each `amount` and add 18.9% interest to it rounded to the nearest cent
   and then sum it all up into one value saved to `sumOfInterests`
  */
-var sumOfInterests = null;
+var sumOfInterests = dataset.bankBalances
+  .filter( (listedStates) => {
+    return ['WI', 'IL', 'WY', 'OH', 'GA', 'DE'].indexOf(listedStates.state) !== -1;
 
+})
+    .reduce( (tax, stateAmount) => {
+    return Math.round((tax + Math.round(stateAmount.amount * 0.189 * 100)/100)*100)/100;
+  },0);
 /*
   aggregate the sum of bankBalance amounts
   grouped by state
@@ -103,7 +108,15 @@ var sumOfInterests = null;
     round this number to the nearest 10th of a cent before moving on.
   )
  */
-var stateSums = null;
+var stateSums = dataset.bankBalances.reduce( (statesTotal, currentState) => {
+  if(!statesTotal.hasOwnProperty(currentState.state)){
+    statesTotal[currentState.state] = 0;
+  }
+  statesTotal[currentState.state] += parseFloat(currentState.amount);
+  statesTotal[currentState.state] = Math.round(statesTotal[currentState.state] * 100)/100;
+  console.log(currentState);
+  return statesTotal;
+},{});
 
 /*
   from each of the following states:
@@ -128,7 +141,10 @@ var sumOfHighInterests = null;
   abbreviations of each state where the sum of amounts
   in the state is less than 1,000,000
  */
-var lowerSumStates = null;
+var lowerSumStates =  null;
+// Object.keys(stateSums).filter( (state) => {
+//   return stateSums[state] < 1000000;
+// });
 
 /*
   aggregate the sum of each state into one hash table
